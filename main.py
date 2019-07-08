@@ -1,119 +1,233 @@
-import arcade
+from tkinter import *
+from tkinter import messagebox
+window=Tk()
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+window.title("Tic Tac Toe")
+window.geometry("800x600")
 
+turn = 0
 
-class MyGame(arcade.Window):
-    """ Main application class. """
-
-    def __init__(self, width, height):
-        super().__init__(width, height)
-
-        arcade.set_background_color(arcade.color.LIGHT_GRAY)
-
-    def setup(self):
-        # Set up your game here
-        pass
-
-    def on_draw(self):
-        """ Render the screen. """
-        arcade.start_render()
-        # Your drawing code goes here
-        # Draw the trunk
-        height = 600
-        width = 600
-        #vertical
-        arcade.draw_lrtb_rectangle_filled(width/3-10, width/3+10, \
-          height - 20, 20, arcade.color.DARK_GRAY)
-        arcade.draw_lrtb_rectangle_filled(width*2/3-10, width*2/3+10, \
-          height - 20, 20, arcade.color.DARK_GRAY)
+def begin():
         
-        #horizonal
-        arcade.draw_lrtb_rectangle_filled(20, width - 20, \
-          height/3+10, height/3-10, arcade.color.DARK_GRAY)
-        arcade.draw_lrtb_rectangle_filled(20, width - 20, \
-          height*2/3+10, height*2/3-10, arcade.color.DARK_GRAY)
+    lbl=Label(window,text="Tic-tac-toe Game",font=('Helvetica','15'))
+    lbl.grid(row=0,column=0)
+    lbl=Label(window,text="Player 1: X",font=('Helvetica','10'))
+    lbl.grid(row=1,column=0)
+    lbl=Label(window,text="Player 2: O",font=('Helvetica','10'))
+    lbl.grid(row=2,column=0)
 
-        arcade.draw_lrtb_rectangle_filled(width+20, width+25, \
-          height, 0, arcade.color.DARK_GRAY)
 
-    def update(self, delta_time):
-        """ All the logic to move, and the game logic goes here. """
-        pass
+    button = []
+    for i in range(9):
+        button.append(Button(window, text=" ",bg="gray", fg="Black",width=3,height=1,font=('Helvetica','70'),command=lambda i=i: clicked(button[i], button)))
+        button[i].grid(column=int(i/3+1), row=int(i%3+1))
 
+def clicked(self, button):
+    global turn
+    if turn % 2 == 0 and self["text"] != "X" and self["text"] != "O":
+        self["text"]="X"
+        turn += 1
+    elif turn % 2 == 1 and self["text"] != "X" and self["text"] != "O":
+        self["text"]="O"
+        turn += 1
+    check(button)
+
+def check(self):   
+    global turn 
+    for i in range(3):
+        if(self[3*i]["text"] == self[3*i+1]["text"] == self[3*i+2]["text"] != " "):
+            win(self[3*i]["text"])
+        elif(self[i]["text"] == self[i+3]["text"] == self[i+6]["text"] != " "):
+            win(self[i]["text"])
+    if(self[0]["text"] == self[4]["text"] == self[8]["text"] != " "):
+        win(self[0]["text"])
+    if(self[2]["text"] == self[4]["text"] == self[6]["text"] != " "):
+        win(self[2]["text"])
+
+    if turn == 9:
+        win(" ")
+    
+
+def win(player):
+    global turn
+    if turn == 9 and player == " ":
+        messagebox.showinfo("Game finished" ,"Tie game")
+        window.destroy()  # is used to close the program
+    else:
+        ans = "Game complete " +player + " wins "
+        messagebox.showinfo("Congratulations", ans)
+        window.destroy()  # is used to close the program
 
 def main():
-    game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
-    game.setup()
-    arcade.run()
+    begin()    
+    window.mainloop()
 
 
 if __name__ == "__main__":
     main()
 
-'''
-on_draw: All the code to draw the screen goes here.
-update: All the code to move your items and perform game logic goes here. This is called about 60 times per second.
-on_key_press: Handle events when a key is pressed, such as giving a player a speed.
-on_key_release: Handle when a key is released, here you might stop a player from moving.
-on_mouse_motion: This is called every time the mouse moves.
-on_mouse_press: Called when a mouse button is pressed.
-set_viewport: This function is used in scrolling games, when you have a world much larger than what can be seen on one screen. Calling set_viewport allows a programmer to set what part of that world is currently visible.
 
-'''
 
-'''
-import arcade
 
-# Set constants for the screen size
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 600
+''' Reference tutorial - can be simplified
 
-# Open the window. Set the window title and dimensions (width and height)
-arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Drawing Example")
+lbl=Label(window,text="Tic-tac-toe Game",font=('Helvetica','15'))
+lbl.grid(row=0,column=0)
+lbl=Label(window,text="Player 1: X",font=('Helvetica','10'))
+lbl.grid(row=1,column=0)
+lbl=Label(window,text="Player 2: O",font=('Helvetica','10'))
+lbl.grid(row=2,column=0)
 
-# Set the background color to white.
-# For a list of named colors see:
-# http://arcade.academy/arcade.color.html
-# Colors can also be specified in (red, green, blue) format and
-# (red, green, blue, alpha) format.
-arcade.set_background_color(arcade.color.WHITE)
+turn=1; #For first person turn.
 
-# Start the render process. This must be done before any drawing commands.
-arcade.start_render()
+def clicked1():
+    global turn
+    if btn1["text"]==" ":   #For getting the text of a button
+        if turn==1:
+            turn =2;
+            btn1["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn1["text"]="O"
+        check();
+def clicked2():
+    global turn
+    if btn2["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn2["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn2["text"]="O"
+        check();
+def clicked3():
+    global turn
+    if btn3["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn3["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn3["text"]="O"
+        check();
+def clicked4():
+    global turn
+    if btn4["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn4["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn4["text"]="O"
+        check();
+def clicked5():
+    global turn
+    if btn5["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn5["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn5["text"]="O"
+        check();
+def clicked6():
+    global turn
+    if btn6["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn6["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn6["text"]="O"
+        check();
+def clicked7():
+    global turn
+    if btn7["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn7["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn7["text"]="O"
+        check();
+def clicked8():
+    global turn
+    if btn8["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn8["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn8["text"]="O"
+        check();
+def clicked9():
+    global turn
+    if btn9["text"]==" ":
+        if turn==1:
+            turn =2;
+            btn9["text"]="X"
+        elif turn==2:
+            turn=1;
+            btn9["text"]="O"
+        check();
+flag=1;
+def check():
+    global flag;
+    b1 = btn1["text"];
+    b2 = btn2["text"];
+    b3 = btn3["text"];
+    b4 = btn4["text"];
+    b5 = btn5["text"];
+    b6 = btn6["text"];
+    b7 = btn7["text"];
+    b8 = btn8["text"];
+    b9 = btn9["text"];
+    flag=flag+1;
+    if b1==b2 and b1==b3 and b1=="O" or b1==b2 and b1==b3 and b1=="X":
+        win(btn1["text"])
+    if b4==b5 and b4==b6 and b4=="O" or b4==b5 and b4==b6 and b4=="X":
+        win(btn4["text"]);
+    if b7==b8 and b7==b9 and b7=="O" or b7==b8 and b7==b9 and b7=="X":
+        win(btn7["text"]);
+    if b1==b4 and b1==b7 and b1=="O" or b1==b4 and b1==b7 and b1=="X":
+        win(btn1["text"]);
+    if b2==b5 and b2==b8 and b2=="O" or b2==b5 and b2==b8 and b2=="X":
+        win(btn2["text"]);
+    if b3==b6 and b3==b9 and b3=="O" or b3==b6 and b3==b9 and b3=="X":
+        win(btn3["text"]);
+    if b1==b5 and b1==b9 and b1=="O" or b1==b5 and b1==b9 and b1=="X":
+        win(btn1["text"]);
+    if b7==b5 and b7==b3 and b7=="O" or b7==b5 and b7==b3 and b7=="X":
+        win(btn7["text"]);
+    if flag ==10:
+        messagebox.showinfo("Tie", "Match Tied!!!  Try again :)")
+        window.destroy()
 
-# Draw the face
-x = 300
-y = 300
-radius = 200
-arcade.draw_circle_filled(x, y, radius, arcade.color.YELLOW)
+def win(player):
+    ans = "Game complete " +player + " wins ";
+    messagebox.showinfo("Congratulations", ans)
+    window.destroy()  # is used to close the program
 
-# Draw the right eye
-x = 370
-y = 350
-radius = 20
-arcade.draw_circle_filled(x, y, radius, arcade.color.BLACK)
 
-# Draw the left eye
-x = 230
-y = 350
-radius = 20
-arcade.draw_circle_filled(x, y, radius, arcade.color.BLACK)
+btn1 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked1)
+btn1.grid(column=1, row=1)
+btn2 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked2)
+btn2.grid(column=2, row=1)
+btn3 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked3)
+btn3.grid(column=3, row=1)
+btn4 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked4)
+btn4.grid(column=1, row=2)
+btn5 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked5)
+btn5.grid(column=2, row=2)
+btn6 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked6)
+btn6.grid(column=3, row=2)
+btn7 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked7)
+btn7.grid(column=1, row=3)
+btn8 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked8)
+btn8.grid(column=2, row=3)
+btn9 = Button(window, text=" ",bg="yellow", fg="Black",width=3,height=1,font=('Helvetica','20'),command=clicked9)
+btn9.grid(column=3, row=3)
 
-# Draw the smile
-x = 300
-y = 280
-width = 120
-height = 100
-start_angle = 190
-end_angle = 350
-arcade.draw_arc_outline(x, y, width, height, arcade.color.BLACK, start_angle, end_angle, 10)
-
-# Finish drawing and display the result
-arcade.finish_render()
-
-# Keep the window open until the user hits the 'close' button
-arcade.run()
+window.mainloop()
 
 '''
