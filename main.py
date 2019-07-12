@@ -5,10 +5,14 @@ window=Tk()
 window.title("Tic Tac Toe")
 window.geometry("800x600")
 
+player = "X"
 turn = 0
+hidden_grid = [9]
+gamemode = "hidden"
 
 def begin():
-        
+    global hidden_grid
+
     lbl=Label(window,text="Tic-tac-toe Game",font=('Helvetica','15'))
     lbl.grid(row=0,column=0)
     lbl=Label(window,text="Player 1: X",font=('Helvetica','10'))
@@ -16,25 +20,54 @@ def begin():
     lbl=Label(window,text="Player 2: O",font=('Helvetica','10'))
     lbl.grid(row=2,column=0)
 
+    setButton = Button(window, text="Standard mode",bg="gray", fg="Black",width=3,height=1,font=('Helvetica','70'),command=lambda i=i: settingsClick())
 
     button = []
     for i in range(9):
-        button.append(Button(window, text=" ",bg="gray", fg="Black",width=3,height=1,font=('Helvetica','70'),command=lambda i=i: clicked(button[i], button)))
+        button.append(Button(window, text=" ",bg="gray", fg="Black",width=3,height=1,font=('Helvetica','70'),command=lambda i=i:clicked(button[i], button, i)))
+        hidden_grid.append(" ")
         button[i].grid(column=int(i/3+1), row=int(i%3+1))
 
-def clicked(self, button):
+def clicked(self, button, number):
     global turn
-    if turn % 2 == 0 and self["text"] != "X" and self["text"] != "O":
+    global hidden_grid
+    lock = "true"
+    if turn % 2 == 0 and hidden_grid[number] != "X" and hidden_grid[number] != "O":
         self["text"]="X"
+        hidden_grid[number] = "X"
         turn += 1
-    elif turn % 2 == 1 and self["text"] != "X" and self["text"] != "O":
+        lock = "false"
+    elif turn % 2 == 1 and hidden_grid[number] != "X" and hidden_grid[number] != "O":
         self["text"]="O"
+        hidden_grid[number] = "O"
         turn += 1
+
+    if(gamemode == "hidden" and lock == "false"):
+        hide(player, number, button)
     check(button)
+
+def settingsClick(self):
+    if(gamemode == "hidden"):
+        gamemode == "standard"
+    elif(gamemode == "standard"):
+        gamemode == "hidden"
+    self["text"]=gamemode
 
 def check(self):   
     global turn 
+    global hidden_grid
     for i in range(3):
+        if(hidden_grid[3*i] == hidden_grid[3*i+1] == hidden_grid[3*i+2] != " "):
+            win(hidden_grid[3*i])
+        elif(hidden_grid[i] == hidden_grid[i+3] == hidden_grid[i+6] != " "):
+            win(hidden_grid[i])
+    if(hidden_grid[0] == hidden_grid[4] == hidden_grid[8] != " "):
+        win(hidden_grid[0])
+    elif(hidden_grid[2] == hidden_grid[4] == hidden_grid[6] != " "):
+        win(hidden_grid[2])
+    elif turn == 9:
+        win(" ")
+'''
         if(self[3*i]["text"] == self[3*i+1]["text"] == self[3*i+2]["text"] != " "):
             win(self[3*i]["text"])
         elif(self[i]["text"] == self[i+3]["text"] == self[i+6]["text"] != " "):
@@ -43,10 +76,13 @@ def check(self):
         win(self[0]["text"])
     if(self[2]["text"] == self[4]["text"] == self[6]["text"] != " "):
         win(self[2]["text"])
-
-    if turn == 9:
-        win(" ")
+'''
     
+def hide(player, exception, button):
+    for i in range(9):
+        if(button[i]["text"] != player and i != exception):
+            button[i]["text"] = " "
+        
 
 def win(player):
     global turn
