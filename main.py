@@ -8,7 +8,7 @@ window.geometry("800x600")
 player = "X"
 turn = 0
 hidden_grid = [9]
-gamemode = "hidden"
+gamemode = "Standard"
 
 def begin():
     global hidden_grid
@@ -19,8 +19,9 @@ def begin():
     lbl.grid(row=1,column=0)
     lbl=Label(window,text="Player 2: O",font=('Helvetica','10'))
     lbl.grid(row=2,column=0)
-
-    setButton = Button(window, text="Standard mode",bg="gray", fg="Black",width=3,height=1,font=('Helvetica','70'),command=lambda i=i: settingsClick())
+    buttonClick = []
+    buttonClick.append(Button(window, text="Standard",bg="gray", fg="Black",width=7,height=1,font=('Helvetica','10'),command=lambda:settingsClick(buttonClick[0])))
+    buttonClick[0].grid(row = 3, column = 0)
 
     button = []
     for i in range(9):
@@ -31,6 +32,7 @@ def begin():
 def clicked(self, button, number):
     global turn
     global hidden_grid
+    global gamemode
     lock = "true"
     if turn % 2 == 0 and hidden_grid[number] != "X" and hidden_grid[number] != "O":
         self["text"]="X"
@@ -42,16 +44,17 @@ def clicked(self, button, number):
         hidden_grid[number] = "O"
         turn += 1
 
-    if(gamemode == "hidden" and lock == "false"):
+    if(gamemode == "Hidden" and lock == "false"):
         hide(player, number, button)
     check(button)
 
 def settingsClick(self):
-    if(gamemode == "hidden"):
-        gamemode == "standard"
-    elif(gamemode == "standard"):
-        gamemode == "hidden"
-    self["text"]=gamemode
+    global gamemode
+    if(gamemode == "Hidden"):
+        gamemode = "Standard"
+    elif(gamemode == "Standard"):
+        gamemode = "Hidden"
+    self["text"] = gamemode
 
 def check(self):   
     global turn 
