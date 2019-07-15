@@ -11,9 +11,11 @@ turn = 0
 hidden_grid = []
 gamemode = "Standard"
 aiMode = "vs Player"
-
+text = " "
 button = []
 settingButtons = []
+
+iterationLimit = 10
 
 def generate_seed():
     seed = []
@@ -42,7 +44,7 @@ def begin():
     settingButtons[0].grid(row = 1, column = 0)
     settingButtons.append(Button(window, text="Standard",bg="lightblue", fg="Black",width=7,height=1,font=('Helvetica','10'),command=lambda:settingsClick(settingButtons[1])))
     settingButtons[1].grid(row = 2, column = 0)
-    settingButtons.append(Button(window, text="vs Player",bg="lightblue", fg="Black",width=7,height=1,font=('Helvetica','10'),command=lambda:aiClick(settingButtons[2])))
+    settingButtons.append(Button(window, text="vs Player",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:aiClick(settingButtons[2])))
     settingButtons[2].grid(row = 3, column = 0)
 
     for i in range(9):
@@ -108,11 +110,22 @@ def settingsClick(self):
 
 def aiClick(self):
     global aiMode
+    global iterationLimit
+    global text
     if(aiMode == "vs Player"):
         aiMode = "vs AI"
-    elif(aiMode == "vs AI"):
+        text = "vs easy AI"
+        iterationLimit = 50
+    elif(text == "vs easy AI"):
+        text = "vs normal AI"
+        iterationLimit = 300
+    elif(text == "vs normal AI"):
+        text = "vs hard AI"
+        iterationLimit = 4000
+    elif(text == "vs hard AI"):
         aiMode = "vs Player"
-    self["text"] = aiMode
+        text = "vs Player"
+    self["text"] = text
 
 def check():   
     global turn 
@@ -132,7 +145,7 @@ def check():
             win(hidden_grid[2])
             break
         else:
-            lock == False
+            lock = False
     if turn > 8 and lock == False:
         win(" ")         
 
@@ -182,7 +195,7 @@ def turnAI(entryGrid, player):
 def possibilitySearch(predictionGrid, aiPlayer):
     originalPlayer = aiPlayer
     iterationNumber = 0
-    iterationLimit = 10
+    global iterationLimit
     aiOptions = []
     tempGrid = []
     for i in range(9):
@@ -196,7 +209,7 @@ def possibilitySearch(predictionGrid, aiPlayer):
         while(j < 9): #each value of the seed is a unique number between 0-8 inclusive
             if tempGrid[seed[j]] == " ":
                 tempGrid[seed[j]] = aiPlayer
-                aiOptions[seed[0]] += checkPrediction(tempGrid, originalPlayer)
+                aiOptions[seed[0]] += checkPrediction(tempGrid, originalPlayer, j)
 
                 #create baseline options - if it's blank it has - some - weight
                 if aiOptions[seed[j]] == 0:
@@ -209,25 +222,27 @@ def possibilitySearch(predictionGrid, aiPlayer):
             elif tempGrid[seed[j]] != " ": #this works, because each part of the grid is selected only once,
                 #and so this statement basically says that if the actual (hidden_grid) had an
                 #icon here, then weight this move as -100 (don't make this move)
-                aiOptions[seed[j]] = -100
+                aiOptions[seed[j]] = -9999
             j = j + 1
         iterationNumber = iterationNumber + 1
         
         for i in range(9):
             tempGrid[i] = predictionGrid[i]
 
-    highestNumber = -1000
+    highestNumber = -9999 -1
     finalDecision = 0
     for i in range(9):
         if aiOptions[i] > highestNumber:
             highestNumber = aiOptions[i]
             finalDecision = i
+        #print(aiOptions[i])
     if(highestNumber == -100):
         finalDecision = 10
     return finalDecision
 
 
-def checkPrediction(predictionGrid, aiPlayer):
+def checkPrediction(predictionGrid, aiPlayer, turns):
+    weight = pow(8 - turns, 2)
     #defining what icon the opponent is
     if aiPlayer == "X":
         opPlayer = "O"
@@ -242,21 +257,21 @@ def checkPrediction(predictionGrid, aiPlayer):
     for i in range(3):
         #first two are for rows, second two are for columns, last two are for diagonals- all for 3x3 only
         if(predictionGrid[3*i] == predictionGrid[3*i + 1] == predictionGrid[3*i + 2] == aiPlayer):
-            return 1
+            return 1*weight
         elif(predictionGrid[3*i] == predictionGrid[3*i + 1] == predictionGrid[3*i + 2] == opPlayer):
-            return -0.5
+            return -1*weight
         elif(predictionGrid[i] == predictionGrid[i + 3] == predictionGrid[i + 6] == aiPlayer):
-            return 1
+            return 1*weight
         elif(predictionGrid[i] == predictionGrid[i + 3] == predictionGrid[i + 6] == opPlayer):
-            return -0.5
+            return -1*weight
         elif(predictionGrid[0] == predictionGrid[4] == predictionGrid[8] == aiPlayer):
-            return 1
+            return 1*weight
         elif(predictionGrid[0] == predictionGrid[4] == predictionGrid[8] == opPlayer):
-            return -0.5
+            return -1*weight
         elif(predictionGrid[2] == predictionGrid[4] == predictionGrid[6] == aiPlayer):
-            return 1
+            return 1*weight
         elif(predictionGrid[2] == predictionGrid[4] == predictionGrid[6] == opPlayer):
-            return -0.5
+            return -1*weight
     return 0
 
 def main():
