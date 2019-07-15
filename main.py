@@ -90,7 +90,7 @@ def clicked(self, button, number):
         if(gamemode == "Standard"):
             switchPlayer()
         elif(gamemode == "Hidden"):
-            hide(player, number, button)
+            hide(number, button)
             switchPlayer()
         check()
         if(aiMode == "vs AI" and gamemode != "Over"):
@@ -136,9 +136,9 @@ def check():
     if turn > 8 and lock == False:
         win(" ")         
 
-def hide(player, exception, button):
+def hide(exception, button):
     for i in range(9):
-        if(button[i]["text"] != player and i != exception):
+        if(i != exception):
             button[i]["text"] = " "
         
 def unhide():
@@ -150,6 +150,7 @@ def unhide():
 def win(player):
     global gamemode
     gamemode = "Over"
+    unhide()
     if player == " ":
         messagebox.showinfo("Game finished" ,"Tie game")
         reset()
@@ -172,7 +173,8 @@ def turnAI(entryGrid, player):
     if(decision != 10):
         hidden_grid[decision] = player
         button[decision]["text"] = player
-
+        if(gamemode == "Hidden"):
+            hide(decision, button)
     global turn
     turn = turn + 1
     switchPlayer()
