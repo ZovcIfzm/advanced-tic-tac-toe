@@ -16,24 +16,23 @@ button = []
 settingButtons = []
 
 iterationLimit = 10
+gridSize = 25
+winLength = 4
 
 def generate_seed():
     seed = []
-    counter = 0
-    while len(seed) < 9 and counter < 50:
-        counter = 0
-        rand = random.randint(0,8)
+    memCounter = 0
+    while len(seed) < gridSize and memCounter < 50:
+        memCounter = 0
+        rand = random.randint(0,gridSize-1)
         for number in seed:
             if(rand == number):
-                counter = counter + 1
-        if(counter == 0):
+                memCounter = memCounter + 1
+        if(memCounter == 0):
             seed.append(rand)
     return seed
 
 def begin():
-    global hidden_grid
-    global button
-
     lbl=Label(window,text="Tic-tac-toe Game",font=('Helvetica','15'))
     lbl.grid(row=0,column=0)
     #lbl=Label(window,text="Player 1: X",font=('Helvetica','10'))
@@ -46,11 +45,19 @@ def begin():
     settingButtons[1].grid(row = 2, column = 0)
     settingButtons.append(Button(window, text="vs Player",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:aiClick(settingButtons[2])))
     settingButtons[2].grid(row = 3, column = 0)
+    completeSetup()
+    
 
-    for i in range(9):
-        button.append(Button(window, text=" ",bg="lightblue", fg="Black",width=3,height=1,font=('Helvetica','70'),command=lambda i=i:clicked(button[i], button, i)))
+def completeSetup():
+    global hidden_grid
+    global button
+
+    rowSize = int(pow(gridSize, 0.5) + 0.99)
+
+    for i in range(gridSize):
+        button.append(Button(window, text=" ",bg="lightblue", fg="Black",width=3,height=1,font=('Helvetica',int(210/rowSize)),command=lambda i=i:clicked(button[i], button, i)))
         hidden_grid.append(" ")
-        button[i].grid(row=int(i/3+1), column=int(i%3+1))
+        button[i].grid(row=int(i/rowSize+1), column=int(i%rowSize+1))
 
 def reset():
     global hidden_grid
@@ -61,7 +68,7 @@ def reset():
     global aiMode
     global settingButtons
 
-    for i in range(9):
+    for i in range(gridSize):
         hidden_grid[i] = " ";
         button[i]["text"] = " "
     
@@ -115,13 +122,13 @@ def aiClick(self):
     if(aiMode == "vs Player"):
         aiMode = "vs AI"
         text = "vs easy AI"
-        iterationLimit = 50
+        iterationLimit = 50*0.99**gridSize
     elif(text == "vs easy AI"):
         text = "vs normal AI"
-        iterationLimit = 300
+        iterationLimit = 300*0.99**gridSize
     elif(text == "vs normal AI"):
         text = "vs hard AI"
-        iterationLimit = 4000
+        iterationLimit = 4000*0.99**gridSize
     elif(text == "vs hard AI"):
         aiMode = "vs Player"
         text = "vs Player"
@@ -130,33 +137,90 @@ def aiClick(self):
 def check():   
     global turn 
     global hidden_grid
-    lock = True
-    for i in range(3):
-        if(hidden_grid[3*i] == hidden_grid[3*i+1] == hidden_grid[3*i+2] != " "):
-            win(hidden_grid[3*i])
-            break
-        elif(hidden_grid[i] == hidden_grid[i+3] == hidden_grid[i+6] != " "):
-            win(hidden_grid[i])
-            break
-        elif(hidden_grid[0] == hidden_grid[4] == hidden_grid[8] != " "):
-            win(hidden_grid[0])
-            break
-        elif(hidden_grid[2] == hidden_grid[4] == hidden_grid[6] != " "):
-            win(hidden_grid[2])
-            break
-        else:
-            lock = False
-    if turn > 8 and lock == False:
-        win(" ")         
+    rowCounter = 0
+    colCounter = 0
+    fDiagCounter = 0
+    bDiagCounter  = 0
+    rowSize = int(pow(gridSize, 0.5) + 0.99)
+    iconList = []
+    iconList.append("X")
+    iconList.append("O")
+
+    for icon in iconList:
+        for i in range(gridSize):
+            #Check rows
+            if i%rowSize == 0:
+                rowCounter = 0
+            if(hidden_grid[i] == icon):
+                rowCounter = rowCounter + 1
+            
+            #Check columns & diags
+            fDiagRow = []
+            bDiagRow = []
+            for j in range(winLength):
+                #iterators
+                a = 0
+                b = 0
+                c = 0
+                d = 0
+
+                #Check columns
+                if (i+rowSize*j < gridSize):
+                    if(hidden_grid[i+rowSize*j] == icon):
+                        colCounter = colCounter + 1
+            
+                #Check diagonals
+                if (i+j+rowSize*j) < gridSize:
+                    fDiagRow.append(int((i+j+rowSize*j)/rowSize))
+                    if(hidden_grid[i+j+rowSize*j] == icon):
+                        fDiagCounter = fDiagCounter + 1
+                        while a < len(fDiagRow):
+                            while b < len(fDiagRow):
+                                if(fDiagRow[a]==fDiagRow[b] and a != b):
+                                    fDiagCounter = 0
+                                b = b + 1
+                            b = 0
+                            a = a + 1
+
+                if (-1 < (i+j+(2-j)*rowSize) and (i+j+(2-j)*rowSize) < gridSize):
+                    if(hidden_grid[i+j+(2-j)*rowSize] == icon):
+                        bDiagRow.append(int((i+j+(2-j)*rowSize)/rowSize))
+                        bDiagCounter = bDiagCounter + 1
+                        while c < len(bDiagRow):
+                            while d < len(bDiagRow):
+                                if(bDiagRow[c]==bDiagRow[d] and c != d):
+                                    bDiagCounter = 0
+                                d = d + 1
+                            d = 0
+                            c = c + 1
+
+            #Win check
+            if(rowCounter > winLength-1):
+                win(hidden_grid[i])
+                rowCounter = 0 #required since all other counters are reset per loop, but row isn't
+            elif colCounter > winLength-1:
+                win(hidden_grid[i])
+            elif fDiagCounter > winLength-1:
+                win(hidden_grid[i])
+            elif bDiagCounter > winLength-1:
+                win(hidden_grid[i+j+(2-j)*rowSize])                
+            elif turn > gridSize-1:
+                win(" ")
+            #Reset (col, and diag counters only)
+            colCounter = 0 
+            fDiagCounter = 0
+            bDiagCounter = 0
+
+        
 
 def hide(exception, button):
-    for i in range(9):
+    for i in range(gridSize):
         if(i != exception):
             button[i]["text"] = " "
         
 def unhide():
     global hidden_grid
-    for i in range(9):
+    for i in range(gridSize):
         if(button[i]["text"] != hidden_grid[i]):
             button[i]["text"] = hidden_grid[i]
 
@@ -175,7 +239,7 @@ def win(player):
 
 def turnAI(entryGrid, player):
     predictionGrid = []
-    for i in range(9):
+    for i in range(gridSize):
         predictionGrid.append(entryGrid[i])
 
     decision = possibilitySearch(predictionGrid, player)
@@ -198,7 +262,7 @@ def possibilitySearch(predictionGrid, aiPlayer):
     global iterationLimit
     aiOptions = []
     tempGrid = []
-    for i in range(9):
+    for i in range(gridSize):
         aiOptions.append(0)
         tempGrid.append(predictionGrid[i])
 
@@ -206,7 +270,7 @@ def possibilitySearch(predictionGrid, aiPlayer):
         j = 0
         seed = generate_seed()
 
-        while(j < 9): #each value of the seed is a unique number between 0-8 inclusive
+        while(j < gridSize): #each value of the seed is a unique number between 0-8 inclusive
             if tempGrid[seed[j]] == " ":
                 tempGrid[seed[j]] = aiPlayer
                 aiOptions[seed[0]] += checkPrediction(tempGrid, originalPlayer, j)
@@ -222,20 +286,19 @@ def possibilitySearch(predictionGrid, aiPlayer):
             elif tempGrid[seed[j]] != " ": #this works, because each part of the grid is selected only once,
                 #and so this statement basically says that if the actual (hidden_grid) had an
                 #icon here, then weight this move as -100 (don't make this move)
-                aiOptions[seed[j]] = -9999
+                aiOptions[seed[j]] = -10**10
             j = j + 1
         iterationNumber = iterationNumber + 1
         
-        for i in range(9):
+        for i in range(gridSize):
             tempGrid[i] = predictionGrid[i]
 
-    highestNumber = -9999 -1
+    highestNumber = -10**11
     finalDecision = 0
-    for i in range(9):
+    for i in range(gridSize):
         if aiOptions[i] > highestNumber:
             highestNumber = aiOptions[i]
             finalDecision = i
-        #print(aiOptions[i])
     if(highestNumber == -100):
         finalDecision = 10
     return finalDecision
@@ -249,29 +312,89 @@ def checkPrediction(predictionGrid, aiPlayer, turns):
     elif aiPlayer == "O":
         opPlayer = "X"
 
-    counter = 0
-    for i in range(9):
-        if(predictionGrid[i] != " "):
-            counter = counter + 1
+    rowCounter = 0
+    colCounter = 0
+    fDiagCounter = 0
+    bDiagCounter  = 0
+    rowSize = int(pow(gridSize, 0.5) + 0.99)
+    iconList = []
+    iconList.append("X")
+    iconList.append("O")
 
-    for i in range(3):
-        #first two are for rows, second two are for columns, last two are for diagonals- all for 3x3 only
-        if(predictionGrid[3*i] == predictionGrid[3*i + 1] == predictionGrid[3*i + 2] == aiPlayer):
-            return 1*weight
-        elif(predictionGrid[3*i] == predictionGrid[3*i + 1] == predictionGrid[3*i + 2] == opPlayer):
-            return -1*weight
-        elif(predictionGrid[i] == predictionGrid[i + 3] == predictionGrid[i + 6] == aiPlayer):
-            return 1*weight
-        elif(predictionGrid[i] == predictionGrid[i + 3] == predictionGrid[i + 6] == opPlayer):
-            return -1*weight
-        elif(predictionGrid[0] == predictionGrid[4] == predictionGrid[8] == aiPlayer):
-            return 1*weight
-        elif(predictionGrid[0] == predictionGrid[4] == predictionGrid[8] == opPlayer):
-            return -1*weight
-        elif(predictionGrid[2] == predictionGrid[4] == predictionGrid[6] == aiPlayer):
-            return 1*weight
-        elif(predictionGrid[2] == predictionGrid[4] == predictionGrid[6] == opPlayer):
-            return -1*weight
+    for icon in iconList:
+        for i in range(gridSize):
+            #Check rows
+            if i%rowSize == 0:
+                rowCounter = 0
+            if(predictionGrid[i] == icon):
+                rowCounter = rowCounter + 1
+            
+            #Check columns & diags
+            fDiagRow = []
+            bDiagRow = []
+            for j in range(winLength):
+                #iterators
+                a = 0
+                b = 0
+                c = 0
+                d = 0
+
+                #Check columns
+                if (i+rowSize*j < gridSize):
+                    if(predictionGrid[i+rowSize*j] == icon):
+                        colCounter = colCounter + 1
+            
+                #Check diagonals
+                if (i+j+rowSize*j) < gridSize:
+                    fDiagRow.append(int((i+j+rowSize*j)/rowSize))
+                    if(predictionGrid[i+j+rowSize*j] == icon):
+                        fDiagCounter = fDiagCounter + 1
+                        while a < len(fDiagRow):
+                            while b < len(fDiagRow):
+                                if(fDiagRow[a]==fDiagRow[b] and a != b):
+                                    fDiagCounter = 0
+                                b = b + 1
+                            b = 0
+                            a = a + 1
+
+                if (-1 < (i+j+(2-j)*rowSize) and (i+j+(2-j)*rowSize) < gridSize):
+                    if(predictionGrid[i+j+(2-j)*rowSize] == icon):
+                        bDiagRow.append(int((i+j+(2-j)*rowSize)/rowSize))
+                        bDiagCounter = bDiagCounter + 1
+                        while c < len(bDiagRow):
+                            while d < len(bDiagRow):
+                                if(bDiagRow[c]==bDiagRow[d] and c != d):
+                                    bDiagCounter = 0
+                                d = d + 1
+                            d = 0
+                            c = c + 1
+
+            #Win check
+            if(rowCounter > winLength-1):
+                if(icon==aiPlayer):
+                    return 1*weight
+                if(icon==opPlayer):
+                    return -1*weight
+                rowCounter = 0 #required since all other counters are reset per loop, but row isn't
+            elif colCounter > winLength-1:
+                if(icon==aiPlayer):
+                    return 1*weight
+                if(icon==opPlayer):
+                    return -1*weight
+            elif fDiagCounter > winLength-1:
+                if(icon==aiPlayer):
+                    return 1*weight
+                if(icon==opPlayer):
+                    return -1*weight
+            elif bDiagCounter > winLength-1:
+                if(icon==aiPlayer):
+                    return 1*weight
+                if(icon==opPlayer):
+                    return -1*weight
+            #Reset (col, and diag counters only)
+            colCounter = 0 
+            fDiagCounter = 0
+            bDiagCounter = 0
     return 0
 
 def main():
