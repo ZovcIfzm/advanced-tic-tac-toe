@@ -16,8 +16,19 @@ button = []
 settingButtons = []
 
 iterationLimit = 10
-gridSize = 25
-winLength = 4
+gridSize = 9
+winLength = 3
+
+lblGrid=Label(window, text="Grid Size")
+lblGrid.grid(row=2, column=5)
+lblWin=Label(window, text="Win length")
+lblWin.grid(row=3, column=5)
+
+e1 = Entry(window)
+e2 = Entry(window)
+
+e1.grid(row=2, column=4)
+e2.grid(row=3, column=4)
 
 def generate_seed():
     seed = []
@@ -45,12 +56,31 @@ def begin():
     settingButtons[1].grid(row = 2, column = 0)
     settingButtons.append(Button(window, text="vs Player",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:aiClick(settingButtons[2])))
     settingButtons[2].grid(row = 3, column = 0)
-    completeSetup()
     
+    
+    #def show_entry_fields():
+        #print("First Name: %s\nLast Name: %s" % (e1.get(), e2.get()))
 
-def completeSetup():
+    settingButtons.append(Button(window, text="Start game",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[3],int(e1.get()), int(e2.get()))))
+    settingButtons[3].grid(row = 1, column = 4)
+
+def completeSetup(self, eGridSize, eWinLength):
+    self.destroy()
+    lblGrid.destroy()
+    lblWin.destroy()
+    e1.destroy()
+    e2.destroy()
+    #e1.delete(0,'end')
+    #e2.delete(0,'end')
+
     global hidden_grid
     global button
+
+    global gridSize
+    global winLength
+
+    gridSize = eGridSize
+    winLength = eWinLength
 
     rowSize = int(pow(gridSize, 0.5) + 0.99)
 
@@ -105,6 +135,8 @@ def clicked(self, button, number):
         if(aiMode == "vs AI" and gamemode != "Over"):
             turnAI(hidden_grid, player)
             check()
+
+#def gridSettingsClick(self):
 
 def settingsClick(self):
     global gamemode
@@ -247,7 +279,7 @@ def turnAI(entryGrid, player):
     global hidden_grid
     global button
 
-    if(decision != 10):
+    if(decision != -1):
         hidden_grid[decision] = player
         button[decision]["text"] = player
         if(gamemode == "Hidden"):
@@ -300,7 +332,8 @@ def possibilitySearch(predictionGrid, aiPlayer):
             highestNumber = aiOptions[i]
             finalDecision = i
     if(highestNumber == -100):
-        finalDecision = 10
+        finalDecision = -1
+    print("finalDecision: " + str(finalDecision))
     return finalDecision
 
 
@@ -328,6 +361,8 @@ def checkPrediction(predictionGrid, aiPlayer, turns):
                 rowCounter = 0
             if(predictionGrid[i] == icon):
                 rowCounter = rowCounter + 1
+            else:
+                rowCounter = 0
             
             #Check columns & diags
             fDiagRow = []
