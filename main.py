@@ -46,21 +46,12 @@ def generate_seed():
 def begin():
     lbl=Label(window,text="Tic-tac-toe Game",font=('Helvetica','15'))
     lbl.grid(row=0,column=0)
-    #lbl=Label(window,text="Player 1: X",font=('Helvetica','10'))
-    #lbl.grid(row=1,column=0)
-    #lbl=Label(window,text="Player 2: O",font=('Helvetica','10'))
-    #lbl.grid(row=2,column=0)
     settingButtons.append(Button(window, text="Reset",bg="lightblue", fg="Black",width=7,height=1,font=('Helvetica','10'),command=lambda:reset()))
     settingButtons[0].grid(row = 1, column = 0)
     settingButtons.append(Button(window, text="Standard",bg="lightblue", fg="Black",width=7,height=1,font=('Helvetica','10'),command=lambda:settingsClick(settingButtons[1])))
     settingButtons[1].grid(row = 2, column = 0)
     settingButtons.append(Button(window, text="vs Player",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:aiClick(settingButtons[2])))
     settingButtons[2].grid(row = 3, column = 0)
-    
-    
-    #def show_entry_fields():
-        #print("First Name: %s\nLast Name: %s" % (e1.get(), e2.get()))
-
     settingButtons.append(Button(window, text="Start game",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[3],int(e1.get()), int(e2.get()))))
     settingButtons[3].grid(row = 1, column = 4)
 
@@ -185,7 +176,8 @@ def check():
                 rowCounter = 0
             if(hidden_grid[i] == icon):
                 rowCounter = rowCounter + 1
-            
+            else:
+                rowCounter = 0
             #Check columns & diags
             fDiagRow = []
             bDiagRow = []
@@ -333,7 +325,6 @@ def possibilitySearch(predictionGrid, aiPlayer):
             finalDecision = i
     if(highestNumber == -100):
         finalDecision = -1
-    print("finalDecision: " + str(finalDecision))
     return finalDecision
 
 
