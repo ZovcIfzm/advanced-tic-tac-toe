@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import random
+import socket
 window=Tk()
 
 window.title("Tic Tac Toe")
@@ -52,11 +53,17 @@ def begin():
     settingButtons[1].grid(row = 2, column = 0)
     settingButtons.append(Button(window, text="vs Player",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:aiClick(settingButtons[2])))
     settingButtons[2].grid(row = 3, column = 0)
-    settingButtons.append(Button(window, text="Start game",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[3],int(e1.get()), int(e2.get()))))
+    settingButtons.append(Button(window, text="Start game",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[3], settingButtons[5], int(e1.get()), int(e2.get()))))
     settingButtons[3].grid(row = 1, column = 4)
+    settingButtons.append(Button(window, text="Player: X",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:playerClick(settingButtons[4])))
+    settingButtons[4].grid(row = 1, column = 5)
+    settingButtons.append(Button(window, text="Quickstart",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[5], settingButtons[3], 9, 3)))
+    settingButtons[5].grid(row = 1, column = 6)
 
-def completeSetup(self, eGridSize, eWinLength):
+
+def completeSetup(self, buttonTwo, eGridSize, eWinLength):
     self.destroy()
+    buttonTwo.destroy()
     lblGrid.destroy()
     lblWin.destroy()
     e1.destroy()
@@ -66,19 +73,22 @@ def completeSetup(self, eGridSize, eWinLength):
 
     global hidden_grid
     global button
+    global player
 
     global gridSize
     global winLength
 
     gridSize = eGridSize
     winLength = eWinLength
-
     rowSize = int(pow(gridSize, 0.5) + 0.99)
 
     for i in range(gridSize):
         button.append(Button(window, text=" ",bg="lightblue", fg="Black",width=3,height=1,font=('Helvetica',int(210/rowSize)),command=lambda i=i:clicked(button[i], button, i)))
         hidden_grid.append(" ")
         button[i].grid(row=int(i/rowSize+1), column=int(i%rowSize+1))
+
+    if(aiMode == "Online" and player == "O"):
+        server()
 
 def reset():
     global hidden_grid
@@ -122,6 +132,14 @@ def clicked(self, button, number):
         elif(gamemode == "Hidden"):
             hide(number, button)
             switchPlayer()
+        if(aiMode == "Online"):
+            switchPlayer() #unswitch player
+            if player == "X":
+                client()
+                server()
+            elif player == "O":
+                client()
+                server()
         check()
         if(aiMode == "vs AI" and gamemode != "Over"):
             turnAI(hidden_grid, player)
@@ -153,9 +171,17 @@ def aiClick(self):
         text = "vs hard AI"
         iterationLimit = 4000*0.99**gridSize
     elif(text == "vs hard AI"):
+        aiMode = "Online"
+        text = "Online"
+    elif(text == "Online"):
         aiMode = "vs Player"
         text = "vs Player"
     self["text"] = text
+
+def playerClick(self):
+    switchPlayer()
+    self["text"] = "Player: " + str(player)
+
 
 def check():   
     global turn 
@@ -422,7 +448,35 @@ def checkPrediction(predictionGrid, aiPlayer, turns):
             fDiagCounter = 0
             bDiagCounter = 0
     return 0
+#socket code
+HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
+PORT = 65005        # Port to listen on (non-privileged ports are > 1023)
+def server():    
+    global hidden_grid
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            print('Connected by', addr)
+            while True:
+                data = conn.recv(1024)
+                if not data:
+                    break
+                hidden_grid = list(data.decode())
+                unhide()
+                conn.sendall(data)
+def client():
+    result = "".join(hidden_grid)
+    packet = result.encode()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        s.sendall(packet)
+        data = s.recv(1024)
 
+    print('Received', repr(data))
+
+#main function
 def main():
     begin()    
     window.mainloop()
