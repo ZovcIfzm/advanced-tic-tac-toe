@@ -7,6 +7,10 @@ window=Tk()
 window.title("Tic Tac Toe")
 window.geometry("800x600")
 
+
+HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
+PORT = 65005        # Port to listen on (non-privileged ports are > 1023)
+
 player = "X"
 turn = 0
 hidden_grid = []
@@ -24,12 +28,20 @@ lblGrid=Label(window, text="Grid Size")
 lblGrid.grid(row=2, column=5)
 lblWin=Label(window, text="Win length")
 lblWin.grid(row=3, column=5)
+lblIP=Label(window, text="IP address (for LAN)")
+lblIP.grid(row=4, column=5)
+lblPort=Label(window, text="Port (for LAN")
+lblPort.grid(row=5, column=5)
 
 e1 = Entry(window)
 e2 = Entry(window)
+e3 = Entry(window)
+e4 = Entry(window)
 
 e1.grid(row=2, column=4)
 e2.grid(row=3, column=4)
+e3.grid(row=4, column=4)
+e4.grid(row=5, column=4)
 
 def generate_seed():
     seed = []
@@ -53,15 +65,20 @@ def begin():
     settingButtons[1].grid(row = 2, column = 0)
     settingButtons.append(Button(window, text="vs Player",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:aiClick(settingButtons[2])))
     settingButtons[2].grid(row = 3, column = 0)
-    settingButtons.append(Button(window, text="Start game",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[3], settingButtons[5], int(e1.get()), int(e2.get()))))
+    settingButtons.append(Button(window, text="Start game",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[3], settingButtons[5], int(e1.get()), int(e2.get()), str(e3.get()), int(e4.get()))))
     settingButtons[3].grid(row = 1, column = 4)
     settingButtons.append(Button(window, text="Player: X",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:playerClick(settingButtons[4])))
     settingButtons[4].grid(row = 1, column = 5)
-    settingButtons.append(Button(window, text="Quickstart",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[5], settingButtons[3], 9, 3)))
+    settingButtons.append(Button(window, text="Quickstart",bg="lightblue", fg="Black",width=10,height=1,font=('Helvetica','10'),command=lambda:completeSetup(settingButtons[5], settingButtons[3], 9, 3, HOST, PORT)))
     settingButtons[5].grid(row = 1, column = 6)
 
 
-def completeSetup(self, buttonTwo, eGridSize, eWinLength):
+def completeSetup(self, buttonTwo, eGridSize, eWinLength, eHOST, ePORT):
+    global HOST
+    global PORT
+    HOST = eHOST
+    PORT = ePORT
+
     self.destroy()
     buttonTwo.destroy()
     lblGrid.destroy()
@@ -449,8 +466,6 @@ def checkPrediction(predictionGrid, aiPlayer, turns):
             bDiagCounter = 0
     return 0
 #socket code
-HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
-PORT = 65005        # Port to listen on (non-privileged ports are > 1023)
 def server():    
     global hidden_grid
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
