@@ -25,10 +25,10 @@ Only the last move is visible - basically a programmed version of mental tic tac
 # Example pictures
 
 ## Home screen
-<img src="https://github.com/ZovcIfzm/DiscoverOHS/blob/master/img/mainScreen.png" width="1000" height="250">
+<img src="https://github.com/ZovcIfzm/tic-tac-toe/blob/master/img/mainScreen.png" width="1000" height="250">
 
 ## Standard game
-<img src="https://github.com/ZovcIfzm/DiscoverOHS/blob/master/img/standardGame.png" width="1000" height="500">
+<img src="https://github.com/ZovcIfzm/tic-tac-toe/blob/master/img/standardGame.png" width="1000" height="500">
 
 ## 4x4 game
-<img src="https://github.com/ZovcIfzm/DiscoverOHS/blob/master/img/4x4.png" width="1000" height="500">
+<img src="https://github.com/ZovcIfzm/tic-tac-toe/blob/master/img/4x4.png" width="1000" height="500">
